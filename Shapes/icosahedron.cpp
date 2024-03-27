@@ -18,12 +18,19 @@ ACRX_DXF_DEFINE_MEMBERS(
 )
 
 //-----------------------------------------------------------------------------
-Icosahedron::Icosahedron()
-	: AcDbEntity(), m_center{ 0, 0, 0 }, m_circumradius{ 1.0 }	 {
+Icosahedron::Icosahedron() : AcDbEntity(), m_center{ 0, 0, 0 }, m_circumradius{ 1.0 }
+{
+	this->Vertices(m_vertices);
+	this->PointsOfEdges(m_edgesPoints);
+	this->Polygonos(m_polygonos);
 }
 
 Icosahedron::Icosahedron(const AcGePoint3d & center, double radius)
-	: AcDbEntity(), m_center{ center }, m_circumradius{ radius }	 {
+	: AcDbEntity(), m_center{ center }, m_circumradius{ radius }
+{
+	this->Vertices(m_vertices);
+	this->PointsOfEdges(m_edgesPoints);
+	this->Polygonos(m_polygonos);
 }
 
 //-----------------------------------------------------------------------------
@@ -81,16 +88,12 @@ Acad::ErrorStatus Icosahedron::dwgInFields(AcDbDwgFiler * pFiler) {
 Adesk::Boolean Icosahedron::subWorldDraw(AcGiWorldDraw * mode) {
 	assertReadEnabled();
 
-	std::vector<AcArray<AcGePoint3d>> pointsOfEdges;
-	this->PointsOfEdges(pointsOfEdges);
-	
-	//auto line{ std::make_unique<AcGePoint3d>() }; // pLine = new AcGePoint3d[2];
-	for (const auto& edge : pointsOfEdges) {
-		//pLine[0] = edge.at(0);
-		//pLine[1] = edge.at(1);
-		mode->geometry().polyline(2, edge.asArrayPtr());
+
+	for (const auto& poligon : m_polygonos) {
+		mode->geometry().polygon(poligon.length(), poligon.asArrayPtr());
+		mode->geometry().polypoint(poligon.length(), poligon.asArrayPtr());
 	}
-	
+
 	return (AcDbEntity::subWorldDraw(mode));
 }
 
@@ -126,7 +129,7 @@ Acad::ErrorStatus Icosahedron::EdgeLength(double& edgeLen) const {
 	return Acad::eOk;
 }
 
-Acad::ErrorStatus Icosahedron::Vertexes(AcArray<AcGePoint3d>& points) const {
+Acad::ErrorStatus Icosahedron::Vertices(AcArray<AcGePoint3d>&points) {
 	//------------------------------------------------------------------------//
 	//    Cartesian coordinates for the vertices of a truncated               //
 	//    icosahedron centered at the origin are all even permutations of:    // 
@@ -137,7 +140,7 @@ Acad::ErrorStatus Icosahedron::Vertexes(AcArray<AcGePoint3d>& points) const {
 	//										            WikipediA             // 
 	//------------------------------------------------------------------------// 
 
-	assertReadEnabled();
+	assertWriteEnabled();
 
 	const double scaleCoefficient{ 0.201774106167 };
 	double scale{ m_circumradius * scaleCoefficient };
@@ -217,21 +220,19 @@ Acad::ErrorStatus Icosahedron::Vertexes(AcArray<AcGePoint3d>& points) const {
 	return Acad::eOk;
 }
 
-Acad::ErrorStatus Icosahedron::Edges(AcArray<AcGeLine3d>& edges) const {
+Acad::ErrorStatus Icosahedron::Edges(AcArray<AcGeLine3d>&edges) const {
 	assertReadEnabled();
-	
-	AcArray<AcGePoint3d> points;
-	this->Vertexes(points);
+
 	double edgeLength{};
 	this->EdgeLength(edgeLength);
 	double distance{ 0 };
 	AcGeTol tol;
 
-	for (int i{ 0 }; i < points.length() - 1; ++i) {
-		for (int j{ i + 1 }; j < points.length(); ++j) {
-			distance = points[i].distanceTo(points[j]);
+	for (int i{ 0 }; i < m_vertices.length() - 1; ++i) {
+		for (int j{ i + 1 }; j < m_vertices.length(); ++j) {
+			distance = m_vertices[i].distanceTo(m_vertices[j]);
 			if (abs(distance - edgeLength) < tol.equalPoint()) {
-				AcGeLine3d edge{points[i], points[j]};
+				AcGeLine3d edge{ m_vertices[i], m_vertices[j] };
 				edges.append(edge);
 			}
 		}
@@ -240,12 +241,12 @@ Acad::ErrorStatus Icosahedron::Edges(AcArray<AcGeLine3d>& edges) const {
 	return Acad::eOk;
 }
 
-Acad::ErrorStatus 
-Icosahedron::PointsOfEdges(std::vector<AcArray<AcGePoint3d>>& pointsOfEdges) const {
-	assertReadEnabled();
+Acad::ErrorStatus
+Icosahedron::PointsOfEdges(std::vector<AcArray<AcGePoint3d>>&pointsOfEdges) {
+	assertWriteEnabled();
 
 	AcArray<AcGePoint3d> points;
-	this->Vertexes(points);
+	this->Vertices(points);
 	double edgeLength{};
 	this->EdgeLength(edgeLength);
 	double distance{ 0 };
@@ -265,6 +266,96 @@ Icosahedron::PointsOfEdges(std::vector<AcArray<AcGePoint3d>>& pointsOfEdges) con
 
 	return Acad::eOk;
 }
+
+Acad::ErrorStatus Icosahedron::Planes(AcArray<AcGePlane>&planes) const {
+	assertReadEnabled();
+
+	AcArray<AcGePlane> planesWithDuplicates;
+	AcGeTol tol;
+
+	// Create planes by three points of the nearest edges
+	for (int i{ 0 }; i < m_edgesPoints.size() - 1; ++i) {
+		for (int j{ i + 1 }; j < m_edgesPoints.size(); ++j) {
+			AcGePoint3d a = m_edgesPoints[i][0];
+			AcGePoint3d b = m_edgesPoints[j][0];
+			if (abs(a.distanceTo(b)) < tol.equalPoint()) {
+				AcGePoint3d c = m_edgesPoints[i][1];
+				AcGePoint3d d = m_edgesPoints[j][1];
+				AcGePlane plane(a, b, c);
+				planesWithDuplicates.append(plane);
+			}
+		}
+	}
+
+	// Search duplicates plane from center point 
+	bool duplicatFlag{};
+	AcGePoint3d a;
+
+	for (int i{ 0 }; i < planesWithDuplicates.length(); ++i) {
+		a = planesWithDuplicates[i].closestPointTo(m_center);
+		duplicatFlag = false;
+		for (auto& plane : planes) {
+			if (plane.distanceTo(a) < tol.equalPoint()) {
+				duplicatFlag = true;
+			}
+		}
+		if (!duplicatFlag) {
+			planes.append(planesWithDuplicates[i]);
+		}
+	}
+
+	return Acad::eOk;
+}
+
+Acad::ErrorStatus Icosahedron::Polygonos(std::vector<AcArray<AcGePoint3d>>&poligonos) {
+	assertWriteEnabled();
+
+	AcGeTol tol;
+	std::vector<AcArray<AcGePoint3d>> unsortedPoints;
+	AcArray<AcGePlane> planes;
+	this->Planes(planes);
+
+	for (int i{ 0 }; i < planes.length(); ++i) {
+		AcArray<AcGePoint3d> ps;
+		for (int j{ 0 }; j < m_vertices.length(); ++j) {
+			if (planes[i].isOn(m_vertices[j])) {
+				ps.append(m_vertices[j]);
+			}
+		}
+		if (ps.length() > 0) {
+			unsortedPoints.push_back(ps);
+		}
+	}
+
+	for (const auto& points : unsortedPoints) {
+		AcArray<AcGePoint3d> poligon;
+		poligon.append(points[0]);
+		for (int i{ 0 }; i < points.length() - 1; ++i) {
+			if (points[i].distanceTo(points[i + 1]) < tol.equalPoint()) {
+				poligon.append(points[i + 1]);
+			}
+		}
+		if (poligon.length() > 0) {
+			poligon.append(points[0]);
+			poligonos.push_back(poligon);
+		}
+	}
+
+	return Acad::eOk;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

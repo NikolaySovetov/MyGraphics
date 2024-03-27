@@ -32,7 +32,11 @@ class DLLIMPEXP Icosahedron : public AcDbEntity {
 private:
 	AcGePoint3d m_center;
 	double m_circumradius;
-
+//-----------------------------------
+	AcArray<AcGePoint3d> m_vertices;
+	std::vector<AcArray<AcGePoint3d>> m_edgesPoints;
+	std::vector<AcArray<AcGePoint3d>> m_polygonos;
+ 
 public:
 	ACRX_DECLARE_MEMBERS(Icosahedron) ;
 
@@ -53,14 +57,16 @@ public:
 	Acad::ErrorStatus MidRadius(double& midRadius) const;
 	Acad::ErrorStatus InscribedRadius(double& inscrRadius) const;
 	Acad::ErrorStatus EdgeLength(double& edgeLen) const;
+	Acad::ErrorStatus Edges(AcArray<AcGeLine3d>& edges) const;
 
 	//- Graphics protocol
 protected:
 	virtual Adesk::Boolean subWorldDraw (AcGiWorldDraw *mode) ;
 	virtual Adesk::UInt32 subSetAttributes (AcGiDrawableTraits *traits) ;
-	Acad::ErrorStatus Vertexes(AcArray<AcGePoint3d>& points) const;
-	Acad::ErrorStatus Edges(AcArray<AcGeLine3d>& edges) const;
-	Acad::ErrorStatus PointsOfEdges(std::vector<AcArray<AcGePoint3d>>& pointsOfEdges) const;
+	Acad::ErrorStatus Vertices(AcArray<AcGePoint3d>& points);
+	Acad::ErrorStatus PointsOfEdges(std::vector<AcArray<AcGePoint3d>>& edgesPoints);
+	Acad::ErrorStatus Planes(AcArray<AcGePlane>& planes) const;
+	Acad::ErrorStatus Polygonos(std::vector<AcArray<AcGePoint3d>>& polygonos);
 } ;
 
 #ifdef SHAPES_MODULE
