@@ -52,8 +52,8 @@ public:
 			auto icos{ std::make_unique<Icosahedron>() };
 			AppendEntity(pBTRecord, icos);
 		}
-		catch (const std::exception& ){
-			acutPrintf(L"\nEXCEPTION");
+		catch (const std::exception& e){
+			acutPrintf(_T("\nEXCEPTION: %s"), e.what());
 		}
 	}
 
