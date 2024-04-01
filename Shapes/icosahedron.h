@@ -33,8 +33,6 @@ private:
 	AcGePoint3d m_center;
 	double m_circumradius;
 	int m_color;
-//-----------------------------------
-	std::vector<AcArray<AcGePoint3d>> m_edgesPoints;
  
 public:
 	ACRX_DECLARE_MEMBERS(MyTruncIcosahedron) ;

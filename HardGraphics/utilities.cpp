@@ -64,5 +64,35 @@ bool SymbolTableRecordWrapper::IsOccupied() const {
 	return m_pSTRecord;
 }
 
+void ShapesBuilder
+(AcDbBlockTableRecord* pBTRecord,
+	const AcGePoint3d& center, const double& radius,
+	int geometricEmbeddings, int count) 
+{
+	if (count >= geometricEmbeddings) {
+		return;
+	}
+	++count;
+
+	auto icosahedron{ std::make_unique<MyTruncIcosahedron>(center, 1.0, 4) };
+	icosahedron->SetInscribedRadius(radius);
+	double nextRadius{};
+	icosahedron->InscribedRadius(nextRadius);
+
+	auto sphere{ std::make_unique<MySphere>(center, nextRadius, 1) };
+	
+	auto cube{ std::make_unique<MyCube>(center, nextRadius, 2) };
+	
+	auto tetrahedron{ std::make_unique<MyTetrahedron>(center, nextRadius, 3) };
+	tetrahedron->InscribedRadius(nextRadius);
+
+	AppendEntity(pBTRecord, icosahedron);
+	AppendEntity(pBTRecord, sphere);
+	AppendEntity(pBTRecord, cube);
+	AppendEntity(pBTRecord, tetrahedron);
+
+	ShapesBuilder(pBTRecord, center, nextRadius, geometricEmbeddings, count);
+
+}
 
 

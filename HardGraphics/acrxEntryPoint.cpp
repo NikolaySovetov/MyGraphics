@@ -117,6 +117,17 @@ public:
 			AcDbBlockTableRecord* pBTRecord =
 				blockTableRecord.GetBlockTableRecord(pBTable, ACDB_MODEL_SPACE, AcDb::kForWrite);
 
+			ShapesBuilder(pBTRecord, AcGePoint3d(0, 0, 0), 1.0, 3);
+
+
+			/*
+			SymbolTableWrapper blockTable;
+			AcDbBlockTable* pBTable = blockTable.GetBlockTable(AcDb::kForWrite);
+
+			SymbolTableRecordWrapper blockTableRecord;
+			AcDbBlockTableRecord* pBTRecord =
+				blockTableRecord.GetBlockTableRecord(pBTable, ACDB_MODEL_SPACE, AcDb::kForWrite);
+
 			auto icos{ std::make_unique<MyTruncIcosahedron>(AcGePoint3d(0, 0, 0 ), 2.0, 3) };
 			double inscrRadius{};
 			icos->InscribedRadius(inscrRadius);
@@ -130,33 +141,12 @@ public:
 			auto icos02{ std::make_unique<MyTruncIcosahedron>(AcGePoint3d(0, 0, 0), 1.0, 3) };
 			icos02->SetInscribedRadius(inscrRadius);
 
-			//AppendEntity(pBTRecord, icos);
-			//AppendEntity(pBTRecord, sphere);
-			//AppendEntity(pBTRecord, cube);
+			AppendEntity(pBTRecord, icos);
+			AppendEntity(pBTRecord, sphere);
+			AppendEntity(pBTRecord, cube);
 			AppendEntity(pBTRecord, tetr);
 			AppendEntity(pBTRecord, icos02);
-		}
-		catch (const std::exception& e) {
-			acutPrintf(_T("\nEXCEPTION: %s"), e.what());
-		}
-	}
-
-	static void Shapes_MyMes() {
-		try {
-			AcGePoint3d a;
-			AcGePoint3d b;
-
-			if (acedGetPoint(NULL, L"\nEnter first point: ", asDblArray(a)) != RTNORM) {
-				return;
-			}
-			if (acedGetPoint(NULL, L"\nEnter first point: ", asDblArray(b)) != RTNORM) {
-				return;
-			}
-
-			double distance{};
-			distance = a.distanceTo(b);
-			acutPrintf(_T("\ndistance = %.12f"), distance);
-
+			*/
 		}
 		catch (const std::exception& e) {
 			acutPrintf(_T("\nEXCEPTION: %s"), e.what());
@@ -173,5 +163,4 @@ ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyCube, MyCube, ACRX_CMD_T
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyTetrahedron, MyTetrahedron, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MySphere, MySphere, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyComposition, MyComposition, ACRX_CMD_TRANSPARENT, NULL)
-ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyMes, MyMes, ACRX_CMD_TRANSPARENT, NULL)
 

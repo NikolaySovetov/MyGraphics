@@ -6,6 +6,8 @@
 #include "sphere.h"
 #include <stdexcept>
 #include <memory>
+#include <initializer_list>
+
 #pragma comment (lib ,"Shapes.lib")
 
 class SymbolTableWrapper {
@@ -58,7 +60,7 @@ public:
 template<typename T>
 void AppendEntity(AcDbBlockTableRecord* pBTRecord, std::unique_ptr<T>& pEntity) {
 	if (!pBTRecord || !pEntity) {
-		throw std::runtime_error("Can't add the Entity to the SymbolTableRecord");
+		throw std::runtime_error("Can't add the Entity. Entity is empty");
 	}
 
 	Acad::ErrorStatus es;
@@ -70,7 +72,9 @@ void AppendEntity(AcDbBlockTableRecord* pBTRecord, std::unique_ptr<T>& pEntity) 
 	pEntity.release();
 }
 
-
+void ShapesBuilder(AcDbBlockTableRecord* pBTRecord,
+	const AcGePoint3d& center, const double& radius, 
+	int geometricEmbeddings, int count = 0);
 
 
 

@@ -18,15 +18,11 @@ ACRX_DXF_DEFINE_MEMBERS(
 //-----------------------------------------------------------------------------
 MyTetrahedron::MyTetrahedron()
 	: AcDbEntity(), m_center{ 0, 0, 0 }, m_circumradius{ 1.0 }, m_color{ 0 }
-{
-	this->PointsOfEdges(m_edgesPoints);
-}
+{}
 
 MyTetrahedron::MyTetrahedron(const AcGePoint3d & center, const double& radius, int color)
 	: AcDbEntity(), m_center{ center }, m_circumradius{ radius }, m_color{ color }
-{
-	this->PointsOfEdges(m_edgesPoints);
-}
+{}
 
 //-----------------------------------------------------------------------------
 //----- AcDbObject protocols
@@ -83,7 +79,10 @@ Acad::ErrorStatus MyTetrahedron::dwgInFields(AcDbDwgFiler * pFiler) {
 Adesk::Boolean MyTetrahedron::subWorldDraw(AcGiWorldDraw * mode) {
 	assertReadEnabled();
 
-	for (const auto& edge : m_edgesPoints) {
+	std::vector<AcArray<AcGePoint3d>> edgesPoints;
+	this->PointsOfEdges(edgesPoints);
+
+	for (const auto& edge : edgesPoints) {
 		mode->subEntityTraits().setColor(m_color);
 		mode->geometry().polyline(edge.length(), edge.asArrayPtr());
 	}
@@ -129,7 +128,7 @@ Acad::ErrorStatus MyTetrahedron::Vertices(AcArray<AcGePoint3d>&points) {
 	//										            WikipediA             // 
 	//------------------------------------------------------------------------// 
 
-	assertWriteEnabled();
+	assertReadEnabled();
 
 	AcArray<AcGePoint3d> cubeVertices;
 	{
@@ -193,7 +192,7 @@ Acad::ErrorStatus MyTetrahedron::Vertices(AcArray<AcGePoint3d>&points) {
 
 Acad::ErrorStatus
 MyTetrahedron::PointsOfEdges(std::vector<AcArray<AcGePoint3d>>&pointsOfEdges) {
-	assertWriteEnabled();
+	assertReadEnabled();
 
 	AcArray<AcGePoint3d> points;
 	this->Vertices(points);

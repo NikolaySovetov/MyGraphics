@@ -20,15 +20,11 @@ ACRX_DXF_DEFINE_MEMBERS(
 //-----------------------------------------------------------------------------
 MyTruncIcosahedron::MyTruncIcosahedron() 
 	: AcDbEntity(), m_center{ 0, 0, 0 }, m_circumradius{ 1.0 }, m_color{ 0 }
-{
-	//this->PointsOfEdges(m_edgesPoints);
-}
+{}
 
 MyTruncIcosahedron::MyTruncIcosahedron(const AcGePoint3d & center, const double& radius, int color)
 	: AcDbEntity(), m_center{ center }, m_circumradius{ radius }, m_color{ color }
-{
-	//this->PointsOfEdges(m_edgesPoints);
-}
+{}
 
 //-----------------------------------------------------------------------------
 //----- AcDbObject protocols
@@ -120,7 +116,6 @@ Acad::ErrorStatus MyTruncIcosahedron::SetInscribedRadius(const double& inscrRadi
 	assertWriteEnabled();
 	const double inscrribedRadiusCoefficient{ 0.914958381743 };
 	m_circumradius = inscrRadius / inscrribedRadiusCoefficient;
-	//PointsOfEdges(m_edgesPoints);
 	
 	return Acad::eOk;
 }
