@@ -3,6 +3,7 @@
 #include "icosahedron.h"
 #include "cube.h"
 #include "tetrahedron.h"
+#include "sphere.h"
 #include <stdexcept>
 #include <memory>
 #pragma comment (lib ,"Shapes.lib")

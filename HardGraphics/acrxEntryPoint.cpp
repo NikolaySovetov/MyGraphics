@@ -91,6 +91,23 @@ public:
 		}
 	}
 
+	static void Shapes_MySphere() {
+		try {
+			SymbolTableWrapper blockTable;
+			AcDbBlockTable* pBTable = blockTable.GetBlockTable(AcDb::kForWrite);
+
+			SymbolTableRecordWrapper blockTableRecord;
+			AcDbBlockTableRecord* pBTRecord =
+				blockTableRecord.GetBlockTableRecord(pBTable, ACDB_MODEL_SPACE, AcDb::kForWrite);
+
+			auto sphere{ std::make_unique<MySphere>() };
+			AppendEntity(pBTRecord, sphere);
+		}
+		catch (const std::exception& e) {
+			acutPrintf(_T("\nEXCEPTION: %s"), e.what());
+		}
+	}
+
 	static void Shapes_MyComposition() {
 		try {
 			SymbolTableWrapper blockTable;
@@ -113,7 +130,6 @@ public:
 			tetr->InscribedRadius(inscrRadius);
 			auto icos02{ std::make_unique<MyTruncIcosahedron>(AcGePoint3d(0, 0, 0), inscrRadius, 3) };
 
-
 			AppendEntity(pBTRecord, icos);
 			//AppendEntity(pBTRecord, sphere);
 			AppendEntity(pBTRecord, cube);
@@ -133,5 +149,6 @@ IMPLEMENT_ARX_ENTRYPOINT(CHardGraphicsApp)
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyIcosahedron, MyIcosahedron, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyCube, MyCube, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyTetrahedron, MyTetrahedron, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MySphere, MySphere, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyComposition, MyComposition, ACRX_CMD_TRANSPARENT, NULL)
 
