@@ -53,6 +53,7 @@ public:
 	Acad::ErrorStatus Circumradius(double& circumRadius) const;
 	Acad::ErrorStatus InscribedRadius(double& inscrRadius) const;
 	Acad::ErrorStatus EdgeLength(double& edgeLen) const;
+	Acad::ErrorStatus SetInscribedRadius(const double& inscrRadius);
 
 protected:
 	virtual Adesk::Boolean subWorldDraw (AcGiWorldDraw *mode) ;

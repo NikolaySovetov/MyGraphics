@@ -21,13 +21,13 @@ ACRX_DXF_DEFINE_MEMBERS(
 MyTruncIcosahedron::MyTruncIcosahedron() 
 	: AcDbEntity(), m_center{ 0, 0, 0 }, m_circumradius{ 1.0 }, m_color{ 0 }
 {
-	this->PointsOfEdges(m_edgesPoints);
+	//this->PointsOfEdges(m_edgesPoints);
 }
 
 MyTruncIcosahedron::MyTruncIcosahedron(const AcGePoint3d & center, const double& radius, int color)
 	: AcDbEntity(), m_center{ center }, m_circumradius{ radius }, m_color{ color }
 {
-	this->PointsOfEdges(m_edgesPoints);
+	//this->PointsOfEdges(m_edgesPoints);
 }
 
 //-----------------------------------------------------------------------------
@@ -87,7 +87,10 @@ Acad::ErrorStatus MyTruncIcosahedron::dwgInFields(AcDbDwgFiler * pFiler) {
 Adesk::Boolean MyTruncIcosahedron::subWorldDraw(AcGiWorldDraw * mode) {
 	assertReadEnabled();
 
-	for (const auto& edge : m_edgesPoints) {
+	std::vector<AcArray<AcGePoint3d>> edgesPoints;
+	this->PointsOfEdges(edgesPoints);
+
+	for (const auto& edge : edgesPoints) {
 		mode->subEntityTraits().setColor(m_color);
 		mode->geometry().polyline(edge.length(), edge.asArrayPtr());
 	}
@@ -113,6 +116,15 @@ Acad::ErrorStatus MyTruncIcosahedron::InscribedRadius(double& inscrRadius) const
 	return Acad::eOk;
 }
 
+Acad::ErrorStatus MyTruncIcosahedron::SetInscribedRadius(const double& inscrRadius) {
+	assertWriteEnabled();
+	const double inscrribedRadiusCoefficient{ 0.914958381743 };
+	m_circumradius = inscrRadius / inscrribedRadiusCoefficient;
+	//PointsOfEdges(m_edgesPoints);
+	
+	return Acad::eOk;
+}
+
 Acad::ErrorStatus MyTruncIcosahedron::EdgeLength(double& edgeLen) const {
 	assertReadEnabled();
 	const double edgelengthCoefficient{ 0.403548212335 };
@@ -131,7 +143,7 @@ Acad::ErrorStatus MyTruncIcosahedron::Vertices(AcArray<AcGePoint3d>&points) {
 	//										            WikipediA             // 
 	//------------------------------------------------------------------------// 
 
-	assertWriteEnabled();
+	assertReadEnabled();
 
 	const double scaleCoefficient{ 0.201774106167 };
 	double scale{ m_circumradius * scaleCoefficient };
@@ -213,7 +225,7 @@ Acad::ErrorStatus MyTruncIcosahedron::Vertices(AcArray<AcGePoint3d>&points) {
 
 Acad::ErrorStatus
 MyTruncIcosahedron::PointsOfEdges(std::vector<AcArray<AcGePoint3d>>&pointsOfEdges) {
-	assertWriteEnabled();
+	assertReadEnabled();
 
 	AcArray<AcGePoint3d> points;
 	this->Vertices(points);
