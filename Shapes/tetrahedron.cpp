@@ -6,9 +6,9 @@ Adesk::UInt32 MyTetrahedron::kCurrentVersionNumber = 1;
 
 //-----------------------------------------------------------------------------
 ACRX_DXF_DEFINE_MEMBERS(
-	MyTetrahedron, AcDbObject,
+	MyTetrahedron, AcDbEntity,
 	AcDb::kDHL_CURRENT, AcDb::kMReleaseCurrent,
-	AcDbProxyEntity::kNoOperation, MYTETRAHEDRON,
+	AcDbProxyEntity::kNoOperation, MYTETRAGEDRON,
 	SHAPESAPP
 	| Product Desc : A description for your object
 	| Company : Your company name
@@ -28,14 +28,13 @@ MyTetrahedron::MyTetrahedron(const AcGePoint3d & center, const double& radius, i
 	this->PointsOfEdges(m_edgesPoints);
 }
 
-
 //-----------------------------------------------------------------------------
 //----- AcDbObject protocols
 //- Dwg Filing protocol
 Acad::ErrorStatus MyTetrahedron::dwgOutFields(AcDbDwgFiler * pFiler) const {
 	assertReadEnabled();
 	//----- Save parent class information first.
-	Acad::ErrorStatus es = AcDbObject::dwgOutFields(pFiler);
+	Acad::ErrorStatus es = AcDbEntity::dwgOutFields(pFiler);
 	if (es != Acad::eOk)
 		return (es);
 	//----- Object version number needs to be saved first
@@ -53,7 +52,7 @@ Acad::ErrorStatus MyTetrahedron::dwgOutFields(AcDbDwgFiler * pFiler) const {
 Acad::ErrorStatus MyTetrahedron::dwgInFields(AcDbDwgFiler * pFiler) {
 	assertWriteEnabled();
 	//----- Read parent class information first.
-	Acad::ErrorStatus es = AcDbObject::dwgInFields(pFiler);
+	Acad::ErrorStatus es = AcDbEntity::dwgInFields(pFiler);
 	if (es != Acad::eOk)
 		return (es);
 	//----- Object version number needs to be read first
@@ -64,7 +63,7 @@ Acad::ErrorStatus MyTetrahedron::dwgInFields(AcDbDwgFiler * pFiler) {
 		return (Acad::eMakeMeProxy);
 	//- Uncomment the 2 following lines if your current object implementation cannot
 	//- support previous version of that object.
-	//if ( version < MyTetrahedron::kCurrentVersionNumber )
+	//if ( version < MyTetragedron::kCurrentVersionNumber )
 	//	return (Acad::eMakeMeProxy) ;
 	//----- Read params
 	//.....
@@ -92,10 +91,10 @@ Adesk::Boolean MyTetrahedron::subWorldDraw(AcGiWorldDraw * mode) {
 	return (AcDbEntity::subWorldDraw(mode));
 }
 
-//Adesk::UInt32 MyTetrahedron::subSetAttributes(AcGiDrawableTraits * traits) {
-//	assertReadEnabled();
-//	return (AcDbEntity::subSetAttributes(traits));
-//}
+Adesk::UInt32 MyTetrahedron::subSetAttributes(AcGiDrawableTraits * traits) {
+	assertReadEnabled();
+	return (AcDbEntity::subSetAttributes(traits));
+}
 
 Acad::ErrorStatus MyTetrahedron::Circumradius(double& circRadius) const {
 	assertReadEnabled();
@@ -105,20 +104,19 @@ Acad::ErrorStatus MyTetrahedron::Circumradius(double& circRadius) const {
 
 Acad::ErrorStatus MyTetrahedron::InscribedRadius(double& inscrRadius) const {
 	assertReadEnabled();
-	inscrRadius = 1.0 / 3.0 * m_circumradius;
+	inscrRadius = m_circumradius * (1.0 / 3.0);
 	return Acad::eOk;
 }
 
 Acad::ErrorStatus MyTetrahedron::EdgeLength(double& edgeLen) const {
 	assertReadEnabled();
-	edgeLen = m_circumradius / (std::sqrt(6.0) / 4.0);
+	edgeLen = 4.0 * m_circumradius / std::sqrt(6.0);
 	return Acad::eOk;
 }
 
 Acad::ErrorStatus MyTetrahedron::Vertices(AcArray<AcGePoint3d>&points) {
 
-	// Create the tetrahedron from CUBE vertices
-
+	// The Tetrahedron will create from the cube vertices
 	//------------------------------------------------------------------------//
 	//    For a cube centered at the origin, with edges parallel to the axes  // 
 	//    and with an edge length of 2, the Cartesian coordinates of the      //
@@ -134,8 +132,10 @@ Acad::ErrorStatus MyTetrahedron::Vertices(AcArray<AcGePoint3d>&points) {
 	assertWriteEnabled();
 
 	AcArray<AcGePoint3d> cubeVertices;
-	double cubeEdgeLen{ std::sqrt(4.0 * std::pow(m_circumradius, 2.0) / 3.0) };
 	{
+	    double cubeEdgeLen
+			{ std::sqrt(4.0 * std::pow(m_circumradius, 2.0) / 3.0) };
+		
 		struct signMatrix {
 			double xSign{};
 			double ySign{};
@@ -177,13 +177,13 @@ Acad::ErrorStatus MyTetrahedron::Vertices(AcArray<AcGePoint3d>&points) {
 	}
 
 	double edgeLen{};
-	EdgeLength(edgeLen);
-	points.append(cubeVertices[0]);
+	this->EdgeLength(edgeLen);
 	AcGeTol tol;
 
-	for (int i{ 0 }; i < cubeVertices.length(); ++i) {
-		double distance = cubeVertices[0].distanceTo(cubeVertices[i]);
-		if (abs(distance - edgeLen) < tol.equalPoint()) {
+	points.append(cubeVertices[0]);
+	for (int i{ 1 }; i < cubeVertices.length(); ++i) {
+		double dist = cubeVertices[0].distanceTo(cubeVertices[i]);
+		if (abs(edgeLen - dist) < tol.equalPoint()) {
 			points.append(cubeVertices[i]);
 		}
 	}
@@ -216,3 +216,6 @@ MyTetrahedron::PointsOfEdges(std::vector<AcArray<AcGePoint3d>>&pointsOfEdges) {
 
 	return Acad::eOk;
 }
+
+
+

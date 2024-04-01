@@ -74,6 +74,23 @@ public:
 		}
 	}
 
+	static void Shapes_MyTetrahedron() {
+		try {
+			SymbolTableWrapper blockTable;
+			AcDbBlockTable* pBTable = blockTable.GetBlockTable(AcDb::kForWrite);
+
+			SymbolTableRecordWrapper blockTableRecord;
+			AcDbBlockTableRecord* pBTRecord =
+				blockTableRecord.GetBlockTableRecord(pBTable, ACDB_MODEL_SPACE, AcDb::kForWrite);
+
+			auto tetrahedron{ std::make_unique<MyTetrahedron>() };
+			AppendEntity(pBTRecord, tetrahedron);
+		}
+		catch (const std::exception& e) {
+			acutPrintf(_T("\nEXCEPTION: %s"), e.what());
+		}
+	}
+
 	static void Shapes_MyComposition() {
 		try {
 			SymbolTableWrapper blockTable;
@@ -83,24 +100,30 @@ public:
 			AcDbBlockTableRecord* pBTRecord =
 				blockTableRecord.GetBlockTableRecord(pBTable, ACDB_MODEL_SPACE, AcDb::kForWrite);
 
-			auto icos{ std::make_unique<MyTruncIcosahedron>(AcGePoint3d(0, 0, 0 ), 2.0, 0) };
+			auto icos{ std::make_unique<MyTruncIcosahedron>(AcGePoint3d(0, 0, 0 ), 2.0, 3) };
 			double inscrRadius{};
 			icos->InscribedRadius(inscrRadius);
 
-			auto cube{ std::make_unique<MyCube>(AcGePoint3d(0, 0, 0), inscrRadius, 4 ) };
+			auto cube{ std::make_unique<MyCube>(AcGePoint3d(0, 0, 0), inscrRadius, 1 ) };
+			auto tetr{ std::make_unique<MyTetrahedron>(AcGePoint3d(0, 0, 0), inscrRadius, 2 ) };
 			
-			auto sphere{ std::make_unique<AcDbCircle>() };
-			sphere->setRadius(inscrRadius);
+			//auto sphere{ std::make_unique<AcDbCircle>() };
+			//sphere->setRadius(inscrRadius);
+
+			tetr->InscribedRadius(inscrRadius);
+			auto icos02{ std::make_unique<MyTruncIcosahedron>(AcGePoint3d(0, 0, 0), inscrRadius, 3) };
+
 
 			AppendEntity(pBTRecord, icos);
-			AppendEntity(pBTRecord, sphere);
+			//AppendEntity(pBTRecord, sphere);
 			AppendEntity(pBTRecord, cube);
+			AppendEntity(pBTRecord, tetr);
+			AppendEntity(pBTRecord, icos02);
 		}
 		catch (const std::exception& e) {
 			acutPrintf(_T("\nEXCEPTION: %s"), e.what());
 		}
 	}
-
 
 };
 
@@ -109,5 +132,6 @@ IMPLEMENT_ARX_ENTRYPOINT(CHardGraphicsApp)
 
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyIcosahedron, MyIcosahedron, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyCube, MyCube, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyTetrahedron, MyTetrahedron, ACRX_CMD_TRANSPARENT, NULL)
 ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyComposition, MyComposition, ACRX_CMD_TRANSPARENT, NULL)
 

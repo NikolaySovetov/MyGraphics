@@ -51,12 +51,11 @@ public:
 	Acad::ErrorStatus EdgeLength(double& edgeLen) const;
 
 protected:
-	virtual Adesk::Boolean subWorldDraw(AcGiWorldDraw* mode);
-	//virtual Adesk::UInt32 subSetAttributes(AcGiDrawableTraits* traits);
+	virtual Adesk::Boolean subWorldDraw (AcGiWorldDraw *mode) ;
+	virtual Adesk::UInt32 subSetAttributes (AcGiDrawableTraits *traits) ;
 
 	Acad::ErrorStatus Vertices(AcArray<AcGePoint3d>& points);
 	Acad::ErrorStatus PointsOfEdges(std::vector<AcArray<AcGePoint3d>>& edgesPoints);
-
 } ;
 
 #ifdef SHAPES_MODULE
