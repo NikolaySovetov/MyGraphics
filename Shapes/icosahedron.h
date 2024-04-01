@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <utility>
+//#include <optional>
 
 #ifdef SHAPES_MODULE
 #define DLLIMPEXP __declspec(dllexport)
@@ -65,7 +66,7 @@ protected:
 	virtual Adesk::UInt32 subSetAttributes (AcGiDrawableTraits *traits) ;
 	Acad::ErrorStatus Vertices(AcArray<AcGePoint3d>& points);
 	Acad::ErrorStatus PointsOfEdges(std::vector<AcArray<AcGePoint3d>>& edgesPoints);
-	Acad::ErrorStatus Planes(AcArray<AcGePlane>& planes) const;
+	Acad::ErrorStatus Planes(AcArray<AcGePlane>& planes);
 	Acad::ErrorStatus Polygonos(std::vector<AcArray<AcGePoint3d>>& polygonos);
 } ;
 
