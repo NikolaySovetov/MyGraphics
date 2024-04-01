@@ -1,6 +1,4 @@
 #pragma once
-#include <vector>
-#include <utility>
 
 #ifdef SHAPES_MODULE
 #define DLLIMPEXP __declspec(dllexport)
@@ -25,27 +23,25 @@
 //-----------------------------------------------------------------------------
 #include "dbmain.h"
 
-#define SHAPES_DBXSERVICE _T("SHAPES_DBXSERVICE")
-
 //-----------------------------------------------------------------------------
-class DLLIMPEXP MyTruncIcosahedron : public AcDbEntity {
+class DLLIMPEXP MyTetrahedron : public AcDbEntity {
 private:
 	AcGePoint3d m_center;
 	double m_circumradius;
 	int m_color;
-//-----------------------------------
+	//-----------------------------------
 	std::vector<AcArray<AcGePoint3d>> m_edgesPoints;
- 
+
 public:
-	ACRX_DECLARE_MEMBERS(MyTruncIcosahedron) ;
+	ACRX_DECLARE_MEMBERS(MyTetrahedron) ;
 
 protected:
 	static Adesk::UInt32 kCurrentVersionNumber ;
 
 public:
-	MyTruncIcosahedron () ;
-	MyTruncIcosahedron (const AcGePoint3d& center, const double& radius, int color) ;
-	virtual ~MyTruncIcosahedron () = default;
+	MyTetrahedron();
+	MyTetrahedron(const AcGePoint3d& center, const double& radius, int color);
+	virtual ~MyTetrahedron() = default;
 
 	virtual Acad::ErrorStatus dwgOutFields (AcDbDwgFiler *pFiler) const ;
 	virtual Acad::ErrorStatus dwgInFields (AcDbDwgFiler *pFiler) ;
@@ -55,13 +51,14 @@ public:
 	Acad::ErrorStatus EdgeLength(double& edgeLen) const;
 
 protected:
-	virtual Adesk::Boolean subWorldDraw (AcGiWorldDraw *mode) ;
-	virtual Adesk::UInt32 subSetAttributes (AcGiDrawableTraits *traits) ;
+	virtual Adesk::Boolean subWorldDraw(AcGiWorldDraw* mode);
+	//virtual Adesk::UInt32 subSetAttributes(AcGiDrawableTraits* traits);
 
 	Acad::ErrorStatus Vertices(AcArray<AcGePoint3d>& points);
 	Acad::ErrorStatus PointsOfEdges(std::vector<AcArray<AcGePoint3d>>& edgesPoints);
+
 } ;
 
 #ifdef SHAPES_MODULE
-ACDB_REGISTER_OBJECT_ENTRY_AUTO(MyTruncIcosahedron)
+ACDB_REGISTER_OBJECT_ENTRY_AUTO(MyTetrahedron)
 #endif

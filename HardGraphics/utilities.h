@@ -1,6 +1,7 @@
 #pragma once
 
 #include "icosahedron.h"
+#include "cube.h"
 #include <stdexcept>
 #include <memory>
 #pragma comment (lib ,"Shapes.lib")

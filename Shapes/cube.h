@@ -1,6 +1,4 @@
 #pragma once
-#include <vector>
-#include <utility>
 
 #ifdef SHAPES_MODULE
 #define DLLIMPEXP __declspec(dllexport)
@@ -25,27 +23,25 @@
 //-----------------------------------------------------------------------------
 #include "dbmain.h"
 
-#define SHAPES_DBXSERVICE _T("SHAPES_DBXSERVICE")
-
 //-----------------------------------------------------------------------------
-class DLLIMPEXP MyTruncIcosahedron : public AcDbEntity {
+class DLLIMPEXP MyCube : public AcDbEntity {
 private:
 	AcGePoint3d m_center;
 	double m_circumradius;
 	int m_color;
-//-----------------------------------
+	//-----------------------------------
 	std::vector<AcArray<AcGePoint3d>> m_edgesPoints;
- 
+
 public:
-	ACRX_DECLARE_MEMBERS(MyTruncIcosahedron) ;
+	ACRX_DECLARE_MEMBERS(MyCube) ;
 
 protected:
 	static Adesk::UInt32 kCurrentVersionNumber ;
 
 public:
-	MyTruncIcosahedron () ;
-	MyTruncIcosahedron (const AcGePoint3d& center, const double& radius, int color) ;
-	virtual ~MyTruncIcosahedron () = default;
+	MyCube();
+	MyCube(const AcGePoint3d& center, const double& radius, int color);
+	virtual ~MyCube() = default;
 
 	virtual Acad::ErrorStatus dwgOutFields (AcDbDwgFiler *pFiler) const ;
 	virtual Acad::ErrorStatus dwgInFields (AcDbDwgFiler *pFiler) ;
@@ -63,5 +59,5 @@ protected:
 } ;
 
 #ifdef SHAPES_MODULE
-ACDB_REGISTER_OBJECT_ENTRY_AUTO(MyTruncIcosahedron)
+ACDB_REGISTER_OBJECT_ENTRY_AUTO(MyCube)
 #endif

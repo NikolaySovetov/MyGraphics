@@ -40,7 +40,7 @@ public:
 	virtual void RegisterServerComponents() {
 	}
 
-	static void Shapes_icosahedron() {
+	static void Shapes_MyIcosahedron() {
 		try	{
 			SymbolTableWrapper blockTable;
 			AcDbBlockTable* pBTable = blockTable.GetBlockTable(AcDb::kForWrite);
@@ -49,7 +49,7 @@ public:
 			AcDbBlockTableRecord* pBTRecord =
 				blockTableRecord.GetBlockTableRecord(pBTable, ACDB_MODEL_SPACE, AcDb::kForWrite);
 
-			auto icos{ std::make_unique<Icosahedron>() };
+			auto icos{ std::make_unique<MyTruncIcosahedron>() };
 			AppendEntity(pBTRecord, icos);
 		}
 		catch (const std::exception& e){
@@ -57,10 +57,57 @@ public:
 		}
 	}
 
+	static void Shapes_MyCube() {
+		try {
+			SymbolTableWrapper blockTable;
+			AcDbBlockTable* pBTable = blockTable.GetBlockTable(AcDb::kForWrite);
+
+			SymbolTableRecordWrapper blockTableRecord;
+			AcDbBlockTableRecord* pBTRecord =
+				blockTableRecord.GetBlockTableRecord(pBTable, ACDB_MODEL_SPACE, AcDb::kForWrite);
+
+			auto cube{ std::make_unique<MyCube>() };
+			AppendEntity(pBTRecord, cube);
+		}
+		catch (const std::exception& e) {
+			acutPrintf(_T("\nEXCEPTION: %s"), e.what());
+		}
+	}
+
+	static void Shapes_MyComposition() {
+		try {
+			SymbolTableWrapper blockTable;
+			AcDbBlockTable* pBTable = blockTable.GetBlockTable(AcDb::kForWrite);
+
+			SymbolTableRecordWrapper blockTableRecord;
+			AcDbBlockTableRecord* pBTRecord =
+				blockTableRecord.GetBlockTableRecord(pBTable, ACDB_MODEL_SPACE, AcDb::kForWrite);
+
+			auto icos{ std::make_unique<MyTruncIcosahedron>(AcGePoint3d(0, 0, 0 ), 2.0, 0) };
+			double inscrRadius{};
+			icos->InscribedRadius(inscrRadius);
+
+			auto cube{ std::make_unique<MyCube>(AcGePoint3d(0, 0, 0), inscrRadius, 4 ) };
+			
+			auto sphere{ std::make_unique<AcDbCircle>() };
+			sphere->setRadius(inscrRadius);
+
+			AppendEntity(pBTRecord, icos);
+			AppendEntity(pBTRecord, sphere);
+			AppendEntity(pBTRecord, cube);
+		}
+		catch (const std::exception& e) {
+			acutPrintf(_T("\nEXCEPTION: %s"), e.what());
+		}
+	}
+
+
 };
 
 //-----------------------------------------------------------------------------
 IMPLEMENT_ARX_ENTRYPOINT(CHardGraphicsApp)
 
-ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _icosahedron, icosahedron, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyIcosahedron, MyIcosahedron, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyCube, MyCube, ACRX_CMD_TRANSPARENT, NULL)
+ACED_ARXCOMMAND_ENTRY_AUTO(CHardGraphicsApp, Shapes, _MyComposition, MyComposition, ACRX_CMD_TRANSPARENT, NULL)
 

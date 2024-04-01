@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="acrxEntryPoint.cpp" />
+    <ClCompile Include="cube.cpp" />
     <ClCompile Include="icosahedron.cpp" />
     <ClCompile Include="Shapes.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -79,6 +80,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cube.h" />
     <ClInclude Include="icosahedron.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StdAfx.h" />

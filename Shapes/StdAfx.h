@@ -24,5 +24,7 @@
 #include "dbxHeaders.h"
 #include "tchar.h"
 
+#include <cmath>
+
 #pragma pack(pop)
 
